@@ -46,9 +46,10 @@ jobs:
           Copy-Item examples_config/angle_config.default-safe.ini  artifacts/angle_config.ini
           Copy-Item LICENSE artifacts/
           Copy-Item README.md artifacts/README.txt
-          # Note: ANGLE prebuilts (libEGL.dll, libGLESv2.dll, d3dcompiler_47.dll)
-          # are NOT included in CI artifacts (they're not in the repo).
-          # Release ZIPs include them via a separate manual step.
+          # ANGLE prebuilts committed to release/ in repo
+          Copy-Item release/libEGL.dll          artifacts/
+          Copy-Item release/libGLESv2.dll       artifacts/
+          Copy-Item release/d3dcompiler_47.dll  artifacts/
           Get-ChildItem artifacts | Format-Table Name, Length
         shell: pwsh
 
@@ -58,6 +59,26 @@ jobs:
           name: ReviANGLE-build-${{ github.sha }}
           path: artifacts/
           retention-days: 30
+
+      - name: Notify Discord on failure
+        if: failure() && env.DISCORD_WEBHOOK != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        shell: pwsh
+        run: |
+          $payload = @{
+            username   = "ReviANGLE CI"
+            avatar_url = "https://github.com/Reviusion.png"
+            embeds = @(@{
+              title       = "❌ Build failed: $env:GITHUB_WORKFLOW"
+              description = "**Job:** Build (x64 Release)`n**Repo:** $env:GITHUB_REPOSITORY`n**Ref:** ``$env:GITHUB_REF_NAME```n**Commit:** ``$($env:GITHUB_SHA.Substring(0,7))``  by **$env:GITHUB_ACTOR**"
+              url         = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+              color       = 15158332
+              footer      = @{ text = "Discord reviusion" }
+              timestamp   = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+            })
+          } | ConvertTo-Json -Depth 6 -Compress
+          Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK -Method Post -ContentType 'application/json' -Body $payload
 
   release:
     name: Publish GitHub Release
@@ -80,11 +101,6 @@ jobs:
           name: ReviANGLE-build-${{ github.sha }}
           path: release/
 
-      - name: Note about ANGLE prebuilts
-        run: |
-          Write-Host "::warning::ANGLE prebuilt DLLs (libEGL.dll, libGLESv2.dll, d3dcompiler_47.dll) must be added to the release ZIP manually before publishing — they are not part of this repo. See docs/BUILDING.md."
-        shell: pwsh
-
       - name: Package release ZIP
         run: |
           $version = "${{ github.ref_name }}"
@@ -101,8 +117,24 @@ jobs:
           body: |
             ## ReviANGLE ${{ github.ref_name }}
 
-            **⚠️ This release ZIP needs ANGLE binaries added manually before publishing.**
-
-            See `docs/BUILDING.md#angle-prebuilts` for how to obtain `libEGL.dll`, `libGLESv2.dll`, `d3dcompiler_47.dll` and add them to the ZIP, then mark this draft release as published.
-
             See [`docs/INSTALLATION.md`](docs/INSTALLATION.md) for install instructions.
+
+      - name: Notify Discord on failure
+        if: failure() && env.DISCORD_WEBHOOK != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        shell: pwsh
+        run: |
+          $payload = @{
+            username   = "ReviANGLE CI"
+            avatar_url = "https://github.com/Reviusion.png"
+            embeds = @(@{
+              title       = "❌ Release failed: $env:GITHUB_WORKFLOW"
+              description = "**Job:** Publish GitHub Release`n**Repo:** $env:GITHUB_REPOSITORY`n**Tag:** ``$env:GITHUB_REF_NAME```n**Commit:** ``$($env:GITHUB_SHA.Substring(0,7))``  by **$env:GITHUB_ACTOR**"
+              url         = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+              color       = 15158332
+              footer      = @{ text = "Discord reviusion" }
+              timestamp   = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+            })
+          } | ConvertTo-Json -Depth 6 -Compress
+          Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK -Method Post -ContentType 'application/json' -Body $payload
