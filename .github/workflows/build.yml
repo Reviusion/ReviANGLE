@@ -35,7 +35,7 @@ jobs:
         run: cmake --build build --config Release --parallel
 
       - name: Run INI round-trip test
-        run: ./build/Release/ini_round_trip_test.exe
+        run: ./build/Release/ini_round_trip_test.exe examples_config/angle_config.default-safe.ini
         shell: pwsh
 
       - name: Stage release artifacts
