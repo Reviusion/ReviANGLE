@@ -1,0 +1,102 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main, dev]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  CMAKE_GENERATOR: "Visual Studio 17 2022"
+
+jobs:
+  build:
+    name: Build (x64 Release)
+    runs-on: windows-2022
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure (CMake)
+        run: cmake -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Run INI round-trip test
+        run: ./build/Release/ini_round_trip_test.exe
+        shell: pwsh
+
+      - name: Stage release artifacts
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Copy-Item build/Release/opengl32.dll              artifacts/
+          Copy-Item build/Release/gd-angle-editor.exe       artifacts/
+          Copy-Item examples/angle_config.default-safe.ini  artifacts/angle_config.ini
+          Copy-Item LICENSE artifacts/
+          Copy-Item README.md artifacts/README.txt
+          # Note: ANGLE prebuilts (libEGL.dll, libGLESv2.dll, d3dcompiler_47.dll)
+          # are NOT included in CI artifacts (they're not in the repo).
+          # Release ZIPs include them via a separate manual step.
+          Get-ChildItem artifacts | Format-Table Name, Length
+        shell: pwsh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ReviANGLE-build-${{ github.sha }}
+          path: artifacts/
+          retention-days: 30
+
+  release:
+    name: Publish GitHub Release
+    runs-on: windows-2022
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ReviANGLE-build-${{ github.sha }}
+          path: release/
+
+      - name: Note about ANGLE prebuilts
+        run: |
+          Write-Host "::warning::ANGLE prebuilt DLLs (libEGL.dll, libGLESv2.dll, d3dcompiler_47.dll) must be added to the release ZIP manually before publishing — they are not part of this repo. See docs/BUILDING.md."
+        shell: pwsh
+
+      - name: Package release ZIP
+        run: |
+          $version = "${{ github.ref_name }}"
+          Compress-Archive -Path release/* -DestinationPath "ReviANGLE-$version-win64.zip" -Force
+          Get-Item "ReviANGLE-$version-win64.zip" | Select Name, Length
+        shell: pwsh
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ReviANGLE-${{ github.ref_name }}-win64.zip
+          generate_release_notes: true
+          draft: true
+          body: |
+            ## ReviANGLE ${{ github.ref_name }}
+
+            **⚠️ This release ZIP needs ANGLE binaries added manually before publishing.**
+
+            See `docs/BUILDING.md#angle-prebuilts` for how to obtain `libEGL.dll`, `libGLESv2.dll`, `d3dcompiler_47.dll` and add them to the ZIP, then mark this draft release as published.
+
+            See [`docs/INSTALLATION.md`](docs/INSTALLATION.md) for install instructions.

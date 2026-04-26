@@ -1,0 +1,116 @@
+# ============================================================================
+# ReviANGLE .gitignore
+# ============================================================================
+
+# --- CMake / Build ---
+build/
+out/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# --- Visual Studio ---
+.vs/
+.vscode/
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+*.opendb
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+*.psess
+*.vsp
+*.vspx
+*.bsc
+*.opt
+ipch/
+
+# --- MSVC build artifacts ---
+*.obj
+*.pch
+*.pdb
+*.idb
+*.ilk
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+*.metagen
+*.exp
+*.lib
+Debug/
+Release/
+x64/
+x86/
+Win32/
+ARM/
+ARM64/
+
+# --- VS solution-level ---
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.props.user
+
+# --- Editor / IDE ---
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- ANGLE prebuilt binaries (download separately, see docs/BUILDING.md) ---
+# Keep them in releases only, not in source.
+angle/
+libEGL.dll
+libGLESv2.dll
+d3dcompiler_47.dll
+
+# --- Game files (never commit GD installation) ---
+GeometryDash.exe
+*.gmd
+*.dat
+CCGameManager.dat
+CCLocalLevels.dat
+Resources/
+
+# --- Runtime / generated ---
+angle_log.txt
+shader_cache/
+plist_cache/
+fbo_cache/
+tuner_history.csv
+last_screenshot.png
+*.zip
+*.7z
+!release/*.zip
+
+# --- Local PowerShell helper scripts (not part of project) ---
+ai_tuner.ps1
+auto_iter.ps1
+auto_test.ps1
+manual_tune.ps1
+analyze_log.ps1
+
+# --- Personal / private ---
+.env
+*.local
+secrets.*
+TODO.private.md
+NOTES.private.md
+progress.txt
