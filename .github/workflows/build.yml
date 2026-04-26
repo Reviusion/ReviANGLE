@@ -43,7 +43,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
           Copy-Item build/Release/opengl32.dll              artifacts/
           Copy-Item build/Release/gd-angle-editor.exe       artifacts/
-          Copy-Item examples/angle_config.default-safe.ini  artifacts/angle_config.ini
+          Copy-Item examples_config/angle_config.default-safe.ini  artifacts/angle_config.ini
           Copy-Item LICENSE artifacts/
           Copy-Item README.md artifacts/README.txt
           # Note: ANGLE prebuilts (libEGL.dll, libGLESv2.dll, d3dcompiler_47.dll)
