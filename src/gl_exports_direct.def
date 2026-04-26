@@ -1,0 +1,175 @@
+; Test: use direct PE forwarders from opengl32.dll -> libGLESv2.dll
+; This bypasses our wrapper functions entirely. WGL still goes through us.
+LIBRARY opengl32
+EXPORTS
+    ; --- WGL stays in our DLL ---
+    wglCreateContext       = wgl_wglCreateContext
+    wglDeleteContext       = wgl_wglDeleteContext
+    wglMakeCurrent         = wgl_wglMakeCurrent
+    wglGetCurrentContext   = wgl_wglGetCurrentContext
+    wglGetCurrentDC        = wgl_wglGetCurrentDC
+    wglGetProcAddress      = wgl_wglGetProcAddress
+    wglShareLists          = wgl_wglShareLists
+    wglSwapBuffers         = wgl_wglSwapBuffers
+    wglSwapIntervalEXT     = wgl_wglSwapIntervalEXT
+    wglChoosePixelFormat   = wgl_wglChoosePixelFormat
+    wglSetPixelFormat      = wgl_wglSetPixelFormat
+    wglDescribePixelFormat = wgl_wglDescribePixelFormat
+    wglGetPixelFormat      = wgl_wglGetPixelFormat
+
+    ; --- GL functions: keep custom GetString (for version spoof) ---
+    glGetString            = gl_glGetString
+    glGetStringi           = gl_glGetStringi
+    glGetIntegerv          = gl_glGetIntegerv
+    glClearDepth           = gl_glClearDepth
+    glDepthRange           = gl_glDepthRange
+
+    ; --- ALL OTHER GL: direct PE forwarders to libGLESv2 ---
+    glClear                = libGLESv2.glClear
+    glClearColor           = libGLESv2.glClearColor
+    glClearDepthf          = libGLESv2.glClearDepthf
+    glClearStencil         = libGLESv2.glClearStencil
+    glColorMask            = libGLESv2.glColorMask
+    glCullFace             = libGLESv2.glCullFace
+    glDepthMask            = libGLESv2.glDepthMask
+    glDisable              = libGLESv2.glDisable
+    glDrawArrays           = libGLESv2.glDrawArrays
+    glDrawElements         = libGLESv2.glDrawElements
+    glEnable               = libGLESv2.glEnable
+    glFinish               = libGLESv2.glFinish
+    glFlush                = libGLESv2.glFlush
+    glFrontFace            = libGLESv2.glFrontFace
+    glGetError             = libGLESv2.glGetError
+    glGetFloatv            = libGLESv2.glGetFloatv
+    glGetBooleanv          = libGLESv2.glGetBooleanv
+    glHint                 = libGLESv2.glHint
+    glIsEnabled            = libGLESv2.glIsEnabled
+    glLineWidth            = libGLESv2.glLineWidth
+    glPixelStorei          = libGLESv2.glPixelStorei
+    ; Desktop-only GL functions — not in libGLESv2; route to our local stubs.
+    glPolygonMode             = gl_glPolygonMode
+    glDrawElementsBaseVertex  = gl_glDrawElementsBaseVertex
+    glPrimitiveRestartIndex   = gl_glPrimitiveRestartIndex
+    glProvokingVertex         = gl_glProvokingVertex
+    glPolygonOffset        = libGLESv2.glPolygonOffset
+    glReadPixels           = libGLESv2.glReadPixels
+    glScissor              = libGLESv2.glScissor
+    glStencilFunc          = libGLESv2.glStencilFunc
+    glStencilMask          = libGLESv2.glStencilMask
+    glStencilOp            = libGLESv2.glStencilOp
+    glViewport             = libGLESv2.glViewport
+    glBlendFunc            = libGLESv2.glBlendFunc
+    glBlendEquation        = libGLESv2.glBlendEquation
+    glBlendFuncSeparate    = libGLESv2.glBlendFuncSeparate
+    glDepthFunc            = libGLESv2.glDepthFunc
+    glActiveTexture        = libGLESv2.glActiveTexture
+    glBindTexture          = libGLESv2.glBindTexture
+    glDeleteTextures       = libGLESv2.glDeleteTextures
+    glGenTextures          = libGLESv2.glGenTextures
+    glTexImage2D           = libGLESv2.glTexImage2D
+    glTexSubImage2D        = libGLESv2.glTexSubImage2D
+    glTexParameteri        = libGLESv2.glTexParameteri
+    glTexParameterf        = libGLESv2.glTexParameterf
+    glCompressedTexImage2D = libGLESv2.glCompressedTexImage2D
+    glGenerateMipmap       = libGLESv2.glGenerateMipmap
+
+    glReadBuffer              = libGLESv2.glReadBuffer
+    glDrawBuffers             = libGLESv2.glDrawBuffers
+    glCopyTexImage2D          = libGLESv2.glCopyTexImage2D
+    glCopyTexSubImage2D       = libGLESv2.glCopyTexSubImage2D
+    glGetTexParameteriv       = libGLESv2.glGetTexParameteriv
+    glGetTexParameterfv       = libGLESv2.glGetTexParameterfv
+
+    glGenBuffers              = libGLESv2.glGenBuffers
+    glBindBuffer              = libGLESv2.glBindBuffer
+    glBufferData              = libGLESv2.glBufferData
+    glBufferSubData           = libGLESv2.glBufferSubData
+    glDeleteBuffers           = libGLESv2.glDeleteBuffers
+    glMapBufferRange          = libGLESv2.glMapBufferRange
+    glUnmapBuffer             = libGLESv2.glUnmapBuffer
+    glIsBuffer                = libGLESv2.glIsBuffer
+    glGetBufferParameteriv    = libGLESv2.glGetBufferParameteriv
+
+    glGenVertexArrays         = libGLESv2.glGenVertexArrays
+    glBindVertexArray         = libGLESv2.glBindVertexArray
+    glDeleteVertexArrays      = libGLESv2.glDeleteVertexArrays
+    glIsVertexArray           = libGLESv2.glIsVertexArray
+
+    glCreateShader            = libGLESv2.glCreateShader
+    glDeleteShader            = libGLESv2.glDeleteShader
+    glShaderSource            = libGLESv2.glShaderSource
+    glCompileShader           = libGLESv2.glCompileShader
+    glGetShaderiv             = libGLESv2.glGetShaderiv
+    glGetShaderInfoLog        = libGLESv2.glGetShaderInfoLog
+    glGetShaderSource         = libGLESv2.glGetShaderSource
+    glIsShader                = libGLESv2.glIsShader
+
+    glCreateProgram           = libGLESv2.glCreateProgram
+    glDeleteProgram           = libGLESv2.glDeleteProgram
+    glAttachShader            = libGLESv2.glAttachShader
+    glDetachShader            = libGLESv2.glDetachShader
+    glLinkProgram             = libGLESv2.glLinkProgram
+    glUseProgram              = libGLESv2.glUseProgram
+    glGetProgramiv            = libGLESv2.glGetProgramiv
+    glGetProgramInfoLog       = libGLESv2.glGetProgramInfoLog
+    glValidateProgram         = libGLESv2.glValidateProgram
+    glIsProgram               = libGLESv2.glIsProgram
+    glBindAttribLocation      = libGLESv2.glBindAttribLocation
+    glGetAttribLocation       = libGLESv2.glGetAttribLocation
+    glGetActiveAttrib         = libGLESv2.glGetActiveAttrib
+    glGetActiveUniform        = libGLESv2.glGetActiveUniform
+
+    glGetUniformLocation      = libGLESv2.glGetUniformLocation
+    glUniform1f               = libGLESv2.glUniform1f
+    glUniform2f               = libGLESv2.glUniform2f
+    glUniform3f               = libGLESv2.glUniform3f
+    glUniform4f               = libGLESv2.glUniform4f
+    glUniform1i               = libGLESv2.glUniform1i
+    glUniform2i               = libGLESv2.glUniform2i
+    glUniform3i               = libGLESv2.glUniform3i
+    glUniform4i               = libGLESv2.glUniform4i
+    glUniform1fv              = libGLESv2.glUniform1fv
+    glUniform2fv              = libGLESv2.glUniform2fv
+    glUniform3fv              = libGLESv2.glUniform3fv
+    glUniform4fv              = libGLESv2.glUniform4fv
+    glUniform1iv              = libGLESv2.glUniform1iv
+    glUniform2iv              = libGLESv2.glUniform2iv
+    glUniform3iv              = libGLESv2.glUniform3iv
+    glUniform4iv              = libGLESv2.glUniform4iv
+    glUniformMatrix2fv        = libGLESv2.glUniformMatrix2fv
+    glUniformMatrix3fv        = libGLESv2.glUniformMatrix3fv
+    glUniformMatrix4fv        = libGLESv2.glUniformMatrix4fv
+
+    glVertexAttribPointer     = libGLESv2.glVertexAttribPointer
+    glEnableVertexAttribArray = libGLESv2.glEnableVertexAttribArray
+    glDisableVertexAttribArray= libGLESv2.glDisableVertexAttribArray
+    glVertexAttrib1f          = libGLESv2.glVertexAttrib1f
+    glVertexAttrib2f          = libGLESv2.glVertexAttrib2f
+    glVertexAttrib3f          = libGLESv2.glVertexAttrib3f
+    glVertexAttrib4f          = libGLESv2.glVertexAttrib4f
+    glVertexAttrib1fv         = libGLESv2.glVertexAttrib1fv
+    glVertexAttrib2fv         = libGLESv2.glVertexAttrib2fv
+    glVertexAttrib3fv         = libGLESv2.glVertexAttrib3fv
+    glVertexAttrib4fv         = libGLESv2.glVertexAttrib4fv
+
+    glGenFramebuffers         = libGLESv2.glGenFramebuffers
+    glBindFramebuffer         = libGLESv2.glBindFramebuffer
+    glFramebufferTexture2D    = libGLESv2.glFramebufferTexture2D
+    glFramebufferRenderbuffer = libGLESv2.glFramebufferRenderbuffer
+    glCheckFramebufferStatus  = libGLESv2.glCheckFramebufferStatus
+    glDeleteFramebuffers      = libGLESv2.glDeleteFramebuffers
+    glIsFramebuffer           = libGLESv2.glIsFramebuffer
+    glBlitFramebuffer         = libGLESv2.glBlitFramebuffer
+    glGetFramebufferAttachmentParameteriv = libGLESv2.glGetFramebufferAttachmentParameteriv
+
+    glGenRenderbuffers        = libGLESv2.glGenRenderbuffers
+    glBindRenderbuffer        = libGLESv2.glBindRenderbuffer
+    glRenderbufferStorage     = libGLESv2.glRenderbufferStorage
+    glRenderbufferStorageMultisample = libGLESv2.glRenderbufferStorageMultisample
+    glDeleteRenderbuffers     = libGLESv2.glDeleteRenderbuffers
+    glIsRenderbuffer          = libGLESv2.glIsRenderbuffer
+
+    glStencilFuncSeparate     = libGLESv2.glStencilFuncSeparate
+    glStencilMaskSeparate     = libGLESv2.glStencilMaskSeparate
+    glStencilOpSeparate       = libGLESv2.glStencilOpSeparate
+    glSampleCoverage          = libGLESv2.glSampleCoverage
