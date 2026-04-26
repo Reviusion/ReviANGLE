@@ -246,20 +246,63 @@ extern "C" unsigned long long gdangle_getDrawElementsCount() { return g_drawElem
 
 typedef void (WINAPI *PFN_DA)(GLenum, GLint, GLsizei);
 extern "C" void gdangle_markDirty();
+// Defined in gl_proxy_ext.cpp — returns false when the currently bound
+// program has GL_LINK_STATUS=0 (silicate's shaders using desktop-only
+// `layout(location=N) uniform` syntax that ESSL3 rejects).
+extern "C" bool gdangle_currentProgramOK();
+
+// SEH filter for ANGLE crashes. Some Geode mods (peony.silicate) drive
+// ANGLE through code paths that hit `ud2` (UNREACHABLE) deep in libGLESv2's
+// D3D11 stream translator — typically caused by client-side vertex arrays,
+// invalid index types, or vertex format mismatches that ANGLE's renderer
+// can't translate to a D3D11 input layout. The crash is c000001d
+// EXCEPTION_ILLEGAL_INSTRUCTION; on desktop GL the same operation would
+// just produce a no-op or an error. SEH-catch the crash, log once, and
+// continue. State leakage in ANGLE's C++ internals is acceptable vs.
+// taking the whole game down.
+#include <excpt.h>
+#include <windows.h>
+static int gd_filterAngleCrash(unsigned code) {
+    if (code == EXCEPTION_ILLEGAL_INSTRUCTION ||
+        code == EXCEPTION_ACCESS_VIOLATION) {
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+static void gd_logAngleCrash(const char* fn, unsigned code) {
+    static int n = 0;
+    if (n < 16) {
+        angle::log("ANGLE crash in %s: 0x%08X (caught, skipping draw) #%d", fn, code, n);
+        n++;
+    }
+}
+
 extern "C" __declspec(dllexport) void WINAPI gl_glDrawArrays(GLenum mode, GLint first, GLsizei count) {
     static PFN_DA p = nullptr;
     if (!p) p = (PFN_DA)glproxy::resolve("glDrawArrays");
+    if (!gdangle_currentProgramOK()) return;
     g_drawArrays++;
     gdangle_markDirty();
-    if (p) p(mode, first, count);
+    if (!p) return;
+    __try {
+        p(mode, first, count);
+    } __except (gd_filterAngleCrash(GetExceptionCode())) {
+        gd_logAngleCrash("glDrawArrays", GetExceptionCode());
+    }
 }
 typedef void (WINAPI *PFN_DE)(GLenum, GLsizei, GLenum, const GLvoid*);
 extern "C" __declspec(dllexport) void WINAPI gl_glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* ind) {
     static PFN_DE p = nullptr;
     if (!p) p = (PFN_DE)glproxy::resolve("glDrawElements");
+    if (!gdangle_currentProgramOK()) return;
     g_drawElements++;
     gdangle_markDirty();
-    if (p) p(mode, count, type, ind);
+    if (!p) return;
+    __try {
+        p(mode, count, type, ind);
+    } __except (gd_filterAngleCrash(GetExceptionCode())) {
+        gd_logAngleCrash("glDrawElements", GetExceptionCode());
+    }
 }
 // glDrawElementsBaseVertex — GL 3.2+ desktop only, NOT in OpenGL ES.
 // Eclipse Menu's GLEW caches this as NULL via wglGetProcAddress -> ImGui+cocos2d
@@ -270,8 +313,14 @@ extern "C" __declspec(dllexport) void WINAPI gl_glDrawElementsBaseVertex(
         GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLint /*basevertex*/) {
     static PFN_DE p = nullptr;
     if (!p) p = (PFN_DE)glproxy::resolve("glDrawElements");
+    if (!gdangle_currentProgramOK()) return;
     g_drawElements++;
-    if (p) p(mode, count, type, indices);
+    if (!p) return;
+    __try {
+        p(mode, count, type, indices);
+    } __except (gd_filterAngleCrash(GetExceptionCode())) {
+        gd_logAngleCrash("glDrawElementsBaseVertex", GetExceptionCode());
+    }
 }
 // glPrimitiveRestartIndex / glProvokingVertex — GL 3.x desktop, no-op in GLES context.
 extern "C" __declspec(dllexport) void WINAPI gl_glPrimitiveRestartIndex(GLuint /*index*/) { /* no-op */ }

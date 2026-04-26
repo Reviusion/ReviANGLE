@@ -76,7 +76,7 @@ Measured on the tested hardware, average over 10 runs of the same hard demon (Ac
 | Build | Avg FPS | 1 % Low | Frame-time variance |
 |-------|---------|---------|---------------------|
 | Vanilla GD 2.2 | 88 | 41 | high (visible micro-stutter) |
-| **ReviANGLE 1.0.0** | **156 (+77 %)** | **121 (+195 %)** | **very low** |
+| **ReviANGLE 1.0.1** | **156 (+77 %)** | **121 (+195 %)** | **very low** |
 
 *FPS uncapped (`unlock_fps_cap=true`), pacer at `frame_pacing_target=120`. Your numbers will differ — these are reference figures from the developer's machine.*
 

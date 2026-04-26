@@ -108,12 +108,41 @@ jobs:
           Get-Item "ReviANGLE-$version-win64.zip" | Select Name, Length
         shell: pwsh
 
-      - name: Create release
+      - name: Locate release notes
+        id: notes
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $notesFile = "RELEASE_NOTES_$tag.md"
+          if (Test-Path $notesFile) {
+            "  Found: $notesFile"
+            "notes_file=$notesFile" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            "has_notes=true"        | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          } else {
+            "  No matching file: $notesFile  (will use auto-generated notes)"
+            "has_notes=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          }
+
+      - name: Create release (with notes file)
+        if: steps.notes.outputs.has_notes == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ReviANGLE-${{ github.ref_name }}-win64.zip
+          body_path: ${{ steps.notes.outputs.notes_file }}
+          generate_release_notes: false
+          draft: false
+          prerelease: false
+          name: ReviANGLE ${{ github.ref_name }}
+
+      - name: Create release (auto-generated notes)
+        if: steps.notes.outputs.has_notes == 'false'
         uses: softprops/action-gh-release@v2
         with:
           files: ReviANGLE-${{ github.ref_name }}-win64.zip
           generate_release_notes: true
-          draft: true
+          draft: false
+          prerelease: false
+          name: ReviANGLE ${{ github.ref_name }}
           body: |
             ## ReviANGLE ${{ github.ref_name }}
 

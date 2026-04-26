@@ -14,6 +14,7 @@ static bool g_glInitDone = false;
 extern "C" void gdangle_halfresInit(int realW, int realH);
 extern "C" void gdangle_halfresPrePresent();
 extern "C" bool gdangle_shouldSkipPresent();
+extern "C" void gdangle_invalidateAllStateCaches();
 
 extern "C" unsigned long long gdangle_getDrawArraysCount();
 extern "C" unsigned long long gdangle_getDrawElementsCount();
@@ -168,6 +169,9 @@ BOOL WINAPI wgl_wglMakeCurrent(HDC hdc, HGLRC hglrc) {
         a.eglMakeCurrent(a.display, nullptr, nullptr, nullptr);
         t_current = nullptr;
         t_currentDC = nullptr;
+        // Context unbound — our state caches now point at things that no
+        // longer exist. Reset them so the next bind doesn't get dedup'd.
+        gdangle_invalidateAllStateCaches();
         return TRUE;
     }
 
@@ -176,8 +180,17 @@ BOOL WINAPI wgl_wglMakeCurrent(HDC hdc, HGLRC hglrc) {
     if (it == g_contexts.end()) return FALSE;
 
     auto* fc = it->second;
+    FakeContext* prev = t_current;
     BOOL ok = a.eglMakeCurrent(a.display, fc->surface, fc->surface, fc->eglCtx) ? TRUE : FALSE;
     if (ok) {
+        // Context switched (or first bind) — drop stale state caches before
+        // any further GL calls dedup against an old binding. Cocos2d's
+        // CCEGLView::toggleFullScreen tears down the old context and creates
+        // a new one; without this, dedup'd binds skip ANGLE calls and cause
+        // null-deref crashes (e.g. glRenderbufferStorage on no-bound RBO).
+        if (prev != fc) {
+            gdangle_invalidateAllStateCaches();
+        }
         t_current = fc;
         t_currentDC = hdc;
         // Force vsync off after MakeCurrent — ANGLE may ignore early calls
