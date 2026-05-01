@@ -35,7 +35,7 @@ Go to https://github.com/Reviusion/ReviANGLE/releases and download `ReviANGLE-vX
 
 The ZIP contains:
 ```
-ReviANGLE-v1.0.1-win64.zip
+ReviANGLE-v1.0.2-win64.zip
 ├── opengl32.dll              ← the proxy mod
 ├── libEGL.dll                ← ANGLE
 ├── libGLESv2.dll             ← ANGLE
