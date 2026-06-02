@@ -9,8 +9,6 @@
 // 2. consolidate() uses 3000ms timeout (not INFINITE) to prevent permanent
 //    hangs if a worker crashes. On timeout, logs critical error and disables
 //    the deferred renderer safely.
-//
-// ReviANGLE  —  Performance Suite for Geometry Dash  by Reviusion
 
 #include <windows.h>
 #include <d3d11.h>

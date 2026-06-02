@@ -1,8 +1,6 @@
 // ReviANGLE proxy opengl32.dll entry point.
 // Initialises config, applies all boost modules, defers backend init until wglCreateContext.
 // Supports both DirectX 11 (via ANGLE) and Vulkan backends.
-//
-// ReviANGLE  —  Performance Suite for Geometry Dash  by Reviusion
 
 #include <windows.h>
 #include <cstdio>
@@ -255,7 +253,7 @@ static void onAttach(HMODULE self) {
     const char* backendName = "Unknown";
 #endif
 
-    angle::log("ReviANGLE attached — 84 boost modules, backend=%s  (by Reviusion)",
+    angle::log("ReviANGLE attached — 84 boost modules, backend=%s",
                backendName);
 }
 

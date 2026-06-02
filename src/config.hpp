@@ -10,6 +10,7 @@ struct Config {
     std::string backend   = "d3d11";
 #endif
     bool        debug     = false;
+    bool        enabled = true;
     std::string log_file  = "angle_log.txt";
 
     // Boost (base modules)

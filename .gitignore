@@ -76,6 +76,9 @@ ARM64/
 .DS_Store
 Thumbs.db
 
+# --- Third-party dependencies ---
+config_editor/third_party/imgui/        ← ImGui sources (pulled from third-party, not committed)
+
 # --- ANGLE prebuilt binaries (download separately, see docs/BUILDING.md) ---
 # Keep them in releases only, not in source.
 angle/

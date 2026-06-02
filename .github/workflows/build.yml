@@ -48,19 +48,21 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
           New-Item -ItemType Directory -Force -Path artifacts/dx11 | Out-Null
-          New-Item -ItemType Directory -Force -Path artifacts/vulcan | Out-Null
+          New-Item -ItemType Directory -Force -Path artifacts/vulkan | Out-Null
 
           # DX11
           Copy-Item build_dx11/Release/opengl32.dll             artifacts/dx11/
           Copy-Item build_dx11/Release/gd-angle-editor.exe      artifacts/dx11/
+          Copy-Item build_dx11/Release/ReviANGLE-Uninstall.exe  artifacts/dx11/
           Copy-Item examples_config/angle_config.default-safe.ini artifacts/dx11/angle_config.ini
           Copy-Item LICENSE                                     artifacts/dx11/
 
           # Vulkan
-          Copy-Item build_vulkan/Release/opengl32.dll           artifacts/vulcan/
-          Copy-Item build_vulkan/Release/gd-angle-editor.exe    artifacts/vulcan/
-          Copy-Item examples_config/angle_config.default-safe.ini artifacts/vulcan/angle_config.ini
-          Copy-Item LICENSE                                     artifacts/vulcan/
+          Copy-Item build_vulkan/Release/opengl32.dll           artifacts/vulkan/
+          Copy-Item build_vulkan/Release/gd-angle-editor.exe    artifacts/vulkan/
+          Copy-Item build_vulkan/Release/ReviANGLE-Uninstall.exe artifacts/vulkan/
+          Copy-Item examples_config/angle_config.default-safe.ini artifacts/vulkan/angle_config.ini
+          Copy-Item LICENSE                                     artifacts/vulkan/
 
           Get-ChildItem artifacts -Recurse | Format-Table Name, Length
         shell: pwsh
@@ -116,47 +118,18 @@ jobs:
       - name: Package release ZIP
         run: |
           $version = "${{ github.ref_name }}"
-          Compress-Archive -Path release/dx11/* -DestinationPath "ReviANGLE-$version-dx11-win64.zip" -Force
-          Compress-Archive -Path release/vulcan/* -DestinationPath "ReviANGLE-$version-vulcan-win64.zip" -Force
-          Get-Item "ReviANGLE-$version-dx11-win64.zip" | Select Name, Length
-          Get-Item "ReviANGLE-$version-vulcan-win64.zip" | Select Name, Length
+          Compress-Archive -Path release/dx11/* -DestinationPath "ReviANGLE-$version-DX11-win64.zip" -Force
+          Compress-Archive -Path release/vulkan/* -DestinationPath "ReviANGLE-$version-Vulkan-win64.zip" -Force
+          Get-Item "ReviANGLE-$version-DX11-win64.zip" | Select Name, Length
+          Get-Item "ReviANGLE-$version-Vulkan-win64.zip" | Select Name, Length
         shell: pwsh
 
-      - name: Locate release notes
-        id: notes
-        shell: pwsh
-        run: |
-          $tag = "${{ github.ref_name }}"
-          $notesFile = "RELEASE_NOTES_$tag.md"
-          if (Test-Path $notesFile) {
-            "  Found: $notesFile"
-            "notes_file=$notesFile" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-            "has_notes=true"        | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          } else {
-            "  No matching file: $notesFile  (will use auto-generated notes)"
-            "has_notes=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          }
-
-      - name: Create release (with notes file)
-        if: steps.notes.outputs.has_notes == 'true'
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ReviANGLE-${{ github.ref_name }}-dx11-win64.zip
-            ReviANGLE-${{ github.ref_name }}-vulcan-win64.zip
-          body_path: ${{ steps.notes.outputs.notes_file }}
-          generate_release_notes: false
-          draft: false
-          prerelease: false
-          name: ReviANGLE ${{ github.ref_name }}
-
-      - name: Create release (auto-generated notes)
-        if: steps.notes.outputs.has_notes == 'false'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            ReviANGLE-${{ github.ref_name }}-dx11-win64.zip
-            ReviANGLE-${{ github.ref_name }}-vulcan-win64.zip
+            ReviANGLE-${{ github.ref_name }}-DX11-win64.zip
+            ReviANGLE-${{ github.ref_name }}-Vulkan-win64.zip
           generate_release_notes: true
           draft: false
           prerelease: false
@@ -164,7 +137,49 @@ jobs:
           body: |
             ## ReviANGLE ${{ github.ref_name }}
 
-            See [`docs/INSTALLATION.md`](docs/INSTALLATION.md) for install instructions.
+            **Active Fork** with simultaneous DirectX 11 and Vulkan backend support, plus enhanced DirectX 11 backend.
+            
+            Maintained at [@nazarhktwitch/ReviANGLE](https://github.com/nazarhktwitch/ReviANGLE).
+            Original project: [@Reviusion/ReviANGLE](https://github.com/Reviusion/ReviANGLE) (v2.x series).
+
+            ---
+
+            ### Version History Note
+
+            This fork continues from **Reviusion/ReviANGLE v3.0.0** with versions 3.x indicating active fork maintenance.
+            The original project used v2.x versioning — this fork's v3.x (3.0.0 and above) represents:
+            - **Vulkan backend** — Full OpenGL→Vulkan translation via ANGLE
+            - **Enhanced DirectX 11** — Performance improvements to existing DX11 code
+            - **Modern installer/uninstaller** — GUI-based tools for deployment
+
+            See [CHANGELOG.md](CHANGELOG.md) for detailed upgrade notes.
+
+            ---
+
+            ### What's New
+            See [CHANGELOG.md](CHANGELOG.md#${{ github.ref_name }}) and commit history for this release.
+
+            ### Downloads
+
+            Two separate builds available (choose one):
+
+            | Build | Backend | Best For | Notes |
+            |-------|---------|----------|-------|
+            | **DX11-win64** | DirectX 11 | All hardware | Most stable, works on older GPUs |
+            | **Vulkan-win64** | Vulkan | RTX, Radeon RX, Intel Arc | Modern GPUs, best performance |
+
+            ### Installation
+
+            1. Download the ZIP for your GPU
+            2. Extract into your Geometry Dash folder (where `GeometryDash.exe` is)
+            3. Run GD or use `gd-angle-editor.exe` to configure
+
+            See [`docs/INSTALLATION.md`](docs/INSTALLATION.md) for detailed instructions.
+
+            ### Support
+
+            - Questions? See [`docs/INSTALLATION.md`](docs/INSTALLATION.md) or [`docs/STABILITY_GUIDE.md`](docs/STABILITY_GUIDE.md)
+            - Found a bug? Check [issues](https://github.com/nazarhktwitch/ReviANGLE/issues)
 
       - name: Notify Discord on failure
         if: failure() && env.DISCORD_WEBHOOK != ''

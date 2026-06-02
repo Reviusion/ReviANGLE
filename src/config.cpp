@@ -87,6 +87,7 @@ void Config::load(const char* path) {
         if (section == "ANGLE") {
             if      (key == "backend")  backend  = val;
             else if (key == "debug")    debug    = parseBool(val);
+            else if (key == "enabled")  enabled  = parseBool(val);
             else if (key == "log_file") {
                 if (!dir.empty() && val.find(':') == std::string::npos && val.front() != '/' && val.front() != '\\') {
                     log_file = dir + val;

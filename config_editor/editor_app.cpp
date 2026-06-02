@@ -153,11 +153,7 @@ void EditorApp::renderTopBar() {
     ImGui::BeginChild("##topbar", ImVec2(0, 56), false);
     ImGui::Dummy(ImVec2(12, 6));
     ImGui::SameLine();
-    ImGui::PushFont(nullptr, 0.0f);
     ImGui::TextColored(ImVec4(0.9f, 0.9f, 0.95f, 1.0f), "ReviANGLE Studio");
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.55f, 0.55f, 0.62f, 1.0f), "  by Reviusion");
-    ImGui::PopFont();
     ImGui::SameLine();
     ImGui::Dummy(ImVec2(20, 0));
     ImGui::SameLine();

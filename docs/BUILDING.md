@@ -59,6 +59,7 @@ build/Release/
 ├── opengl32.lib              ← intermediate
 ├── opengl32.exp              ← intermediate
 ├── gd-angle-editor.exe       ← GUI configurator
+├── ReviANGLE-Uninstall.exe   ← uninstaller with modern GUI
 └── ini_round_trip_test.exe   ← internal test (optional)
 ```
 
@@ -77,11 +78,12 @@ To test the actual mod, see [`INSTALLATION.md`](INSTALLATION.md).
 | CMake target | Output | Description |
 |--------------|--------|-------------|
 | `opengl32` | `opengl32.dll` | The actual proxy mod |
-| `gd_angle_editor` | `gd-angle-editor.exe` | GUI configurator |
-| `ini_round_trip_test` | `ini_round_trip_test.exe` | Validates INI parser preserves byte-for-byte |
-| `ALL` (default) | all 3 | Build everything |
+| `gd_angle_editor` | `gd-angle-editor.exe` | GUI configurator for config options |
+| `ReviANGLE-Uninstall` | `ReviANGLE-Uninstall.exe` | Auto-detecting uninstaller with modern GUI |
+| `ini_round_trip_test` | `ini_round_trip_test.exe` | Validates INI parser preserves formatting |
+| `ALL` (default) | all 4 | Build everything |
 
-Build a single target with `cmake --build build --config Release --target opengl32`.
+Build a single target with `cmake --build build --config Release --target ReviANGLE-Uninstall`.
 
 ## Common build issues
 

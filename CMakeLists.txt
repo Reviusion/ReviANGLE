@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(ReviANGLE LANGUAGES CXX C
     DESCRIPTION  "OpenGL -> ANGLE -> D3D11 / Vulkan proxy for Geometry Dash"
     HOMEPAGE_URL "https://github.com/Reviusion/ReviANGLE"
+    VERSION 1.0.0
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -20,6 +21,10 @@ if (REVIANGLE_BACKEND_D3D11 AND REVIANGLE_BACKEND_VULKAN)
 endif()
 
 message(STATUS "ReviANGLE backends: D3D11=${REVIANGLE_BACKEND_D3D11} Vulkan=${REVIANGLE_BACKEND_VULKAN}")
+
+# Output directory structure: bin/ for executables, dll/ for libraries
+set(REVIANGLE_BIN_DIR "${CMAKE_BINARY_DIR}/bin")
+set(REVIANGLE_DLL_DIR "${CMAKE_BINARY_DIR}/dll")
 
 # Static-link MSVC runtime — eliminates MSVCP140.dll / VCRUNTIME140.dll
 # external dependencies, makes DLL self-contained
@@ -225,6 +230,8 @@ set_target_properties(${OUT_NAME} PROPERTIES
     PREFIX ""
     OUTPUT_NAME "opengl32"
     SUFFIX ".dll"
+    LIBRARY_OUTPUT_DIRECTORY "${REVIANGLE_DLL_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${REVIANGLE_DLL_DIR}"
 )
 
 # ============================================================================
@@ -281,6 +288,7 @@ if (EXISTS ${IMGUI_DIR}/imgui.cpp)
 
     set_target_properties(gd_angle_editor PROPERTIES
         OUTPUT_NAME "gd-angle-editor"
+        RUNTIME_OUTPUT_DIRECTORY "${REVIANGLE_DLL_DIR}"
     )
 else()
     message(WARNING "gd_angle_editor skipped: ImGui sources not found at ${IMGUI_DIR}. Install ImGui or add the third_party/imgui folder to enable the editor build.")
@@ -299,3 +307,10 @@ target_compile_definitions(ini_round_trip_test PRIVATE
 if (MSVC)
     target_compile_options(ini_round_trip_test PRIVATE /utf-8)
 endif()
+
+set_target_properties(ini_round_trip_test PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${REVIANGLE_DLL_DIR}"
+)
+
+# Build ReviANGLE Uninstaller
+add_subdirectory(uninstaller)

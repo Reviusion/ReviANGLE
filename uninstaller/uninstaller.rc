@@ -1,0 +1,37 @@
+#include <windows.h>
+
+// Version resource
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1, 0, 0, 0
+PRODUCTVERSION 1, 0, 0, 0
+FILEFLAGSMASK 0x3f
+FILEFLAGS 0x0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE 0x0
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040904E4"
+        {
+            VALUE "CompanyName", "ReviANGLE Contributors"
+            VALUE "FileDescription", "ReviANGLE Uninstaller"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "ReviANGLE-Uninstall"
+            VALUE "LegalCopyright", "MIT License"
+            VALUE "OriginalFilename", "ReviANGLE-Uninstall.exe"
+            VALUE "ProductName", "ReviANGLE"
+            VALUE "ProductVersion", "1.0.0.0"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x0409, 1252
+    }
+}
+
+// Standard dialogs resource
+STRINGTABLE
+{
+    1, "ReviANGLE Uninstaller"
+}

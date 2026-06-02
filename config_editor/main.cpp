@@ -1,8 +1,6 @@
 // reviangle-studio.exe — entry point.
 //
 // ReviANGLE Studio  —  Config Editor for the ReviANGLE Performance Suite
-// by Reviusion
-//
 // Win32 + DX11 + Dear ImGui. Boilerplate is adapted from ImGui's
 // example_win32_directx11/main.cpp; logic-specific bits are minimal because
 // EditorApp owns all of the UI.
@@ -162,9 +160,7 @@ static void applyTheme() {
     c[ImGuiCol_TitleBgActive]       = ImVec4(0.15f, 0.15f, 0.18f, 1.0f);
     c[ImGuiCol_Tab]                 = ImVec4(0.14f, 0.16f, 0.20f, 1.0f);
     c[ImGuiCol_TabHovered]          = ImVec4(0.30f, 0.40f, 0.55f, 1.0f);
-    c[ImGuiCol_TabSelected]         = ImVec4(0.20f, 0.30f, 0.45f, 1.0f);
-    c[ImGuiCol_TabDimmed]           = ImVec4(0.10f, 0.12f, 0.15f, 1.0f);
-    c[ImGuiCol_TabDimmedSelected]   = ImVec4(0.15f, 0.18f, 0.22f, 1.0f);
+    // TabSelected, TabDimmed, TabDimmedSelected not available in this ImGui version
     c[ImGuiCol_Header]              = ImVec4(0.20f, 0.30f, 0.45f, 0.45f);
     c[ImGuiCol_HeaderHovered]       = ImVec4(0.25f, 0.35f, 0.55f, 0.65f);
     c[ImGuiCol_HeaderActive]        = ImVec4(0.30f, 0.40f, 0.60f, 1.0f);
@@ -189,7 +185,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
     ::RegisterClassExW(&wc);
 
     HWND hWnd = ::CreateWindowW(
-        wc.lpszClassName, L"ReviANGLE Studio  —  by Reviusion",
+        wc.lpszClassName, L"ReviANGLE Studio",
         WS_OVERLAPPEDWINDOW,
         100, 100, 1200, 760,
         nullptr, nullptr, hInstance, nullptr);

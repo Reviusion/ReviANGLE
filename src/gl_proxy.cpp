@@ -383,7 +383,7 @@ extern "C" __declspec(dllexport) const GLubyte* WINAPI gl_glGetString(GLenum nam
         case 0x8B8C: // GL_SHADING_LANGUAGE_VERSION
             return (const GLubyte*)"1.20";
         case 0x1F00: // GL_VENDOR
-            return (const GLubyte*)"ReviANGLE (by Reviusion)";
+            return (const GLubyte*)"ReviANGLE";
         case 0x1F01: // GL_RENDERER
             return (const GLubyte*)"ReviANGLE Direct3D11";
         case 0x1F03: { // GL_EXTENSIONS

@@ -3,7 +3,7 @@
 ## TL;DR
 
 1. **Backup** your `Geometry Dash` folder (or at minimum the existing `opengl32.dll` if any).
-2. Download the latest [Release](https://github.com/Reviusion/ReviANGLE/releases) ZIP.
+2. Download the latest [Release](https://github.com/Reviusion/ReviANGLE/releases) ZIP — choose **DirectX 11** (most compatible) or **Vulkan** (modern GPUs).
 3. Unzip into your GD install folder (where `GeometryDash.exe` lives).
 4. Run `gd-angle-editor.exe` to tune (optional), or just launch GD.
 
@@ -11,52 +11,76 @@
 
 ### 1. Find your Geometry Dash folder
 
-The path depends on how you installed GD:
+**Steam** (recommended):
+```
+C:\Program Files (x86)\Steam\steamapps\common\Geometry Dash\
+```
 
-| Installation | Default path |
-|--------------|--------------|
-| Steam | `C:\Program Files (x86)\Steam\steamapps\common\Geometry Dash\` |
-| Epic Games | `C:\Program Files\Epic Games\GeometryDash\` |
-| Standalone | wherever you put it |
+**Standalone** (if downloaded directly):
+Wherever you extracted it. Look for the folder containing `GeometryDash.exe`.
 
 You should see `GeometryDash.exe` in this folder.
 
-### 2. Back up
+### 2. Download the release
 
-Either:
-- Copy the entire `Geometry Dash` folder to a safe spot, **or**
-- At minimum, if there's already an `opengl32.dll` (e.g. from another mod), rename it to `opengl32.dll.backup`
+Go to https://github.com/nazarhktwitch/ReviANGLE/releases and download one of:
+- `ReviANGLE-vX.Y.Z-DX11-win64.zip` — Default, most compatible
+- `ReviANGLE-vX.Y.Z-Vulkan-win64.zip` — Modern GPUs (RTX, Radeon RX), better performance
 
-### 3. Download the release
+**Can't decide?** Start with DirectX 11 — it's stable on all hardware.
 
-Go to https://github.com/Reviusion/ReviANGLE/releases and download `ReviANGLE-vX.Y.Z-win64.zip`.
+### 3. Unzip
 
-### 4. Unzip
-
-The ZIP contains:
+**DirectX 11 build** contains:
 ```
-ReviANGLE-v1.0.2-win64.zip
+ReviANGLE-v3.0.0-DX11-win64.zip
 ├── opengl32.dll              ← the proxy mod
 ├── libEGL.dll                ← ANGLE
 ├── libGLESv2.dll             ← ANGLE
-├── d3dcompiler_47.dll        ← ANGLE
+├── d3dcompiler_47.dll        ← DirectX 11 compiler
 ├── angle_config.ini          ← config (editable)
 ├── gd-angle-editor.exe       ← GUI configurator
-├── README.txt
 └── LICENSE
 ```
 
-Extract all of them directly into the GD folder so they end up next to `GeometryDash.exe`. Your folder should look like:
+**Vulkan build** contains:
+```
+ReviANGLE-v3.0.0-Vulkan-win64.zip
+├── opengl32.dll              ← the proxy mod
+├── libEGL.dll                ← ANGLE
+├── libGLESv2.dll             ← ANGLE
+├── vulkan-1.dll              ← Vulkan runtime
+├── angle_config.ini          ← config (editable)
+├── gd-angle-editor.exe       ← GUI configurator
+└── LICENSE
+```
 
+Extract all files directly into the GD folder so they end up next to `GeometryDash.exe`. Your folder should look like:
+
+**If you installed DX11:**
 ```
 Geometry Dash/
 ├── GeometryDash.exe
 ├── opengl32.dll              ← from ReviANGLE
 ├── libEGL.dll                ← from ReviANGLE
 ├── libGLESv2.dll             ← from ReviANGLE
-├── d3dcompiler_47.dll        ← from ReviANGLE
+├── d3dcompiler_47.dll        ← DirectX 11 (required for DX11 build)
 ├── angle_config.ini          ← from ReviANGLE
-├── gd-angle-editor.exe       ← from ReviANGLE (optional GUI)
+├── gd-angle-editor.exe       ← optional GUI
+├── Resources/                ← original GD
+└── ...                       ← other original GD files
+```
+
+**If you installed Vulkan:**
+```
+Geometry Dash/
+├── GeometryDash.exe
+├── opengl32.dll              ← from ReviANGLE
+├── libEGL.dll                ← from ReviANGLE
+├── libGLESv2.dll             ← from ReviANGLE
+├── vulkan-1.dll              ← Vulkan (required for Vulkan build)
+├── angle_config.ini          ← from ReviANGLE
+├── gd-angle-editor.exe       ← optional GUI
 ├── Resources/                ← original GD
 └── ...                       ← other original GD files
 ```
@@ -77,35 +101,54 @@ If everything works, you'll see:
 
 ## Verifying it's working
 
-Check `angle_log.txt`. Successful first lines look like:
+Check `angle_log.txt`. Successful first lines with DirectX 11 look like:
 ```
 [ReviANGLE] DllMain DLL_PROCESS_ATTACH
-ReviANGLE attached \u2014 84 boost modules, backend=d3d11  (by Reviusion)
+ReviANGLE attached — 84 boost modules, backend=d3d11
 gpu_forcer: NvOptimusEnablement export installed
 nvapi: using app profile for GeometryDash.exe
 nvapi: PREFERRED_PSTATE=PreferMax = 0x00000000 applied
 nvapi: DRS settings saved (5/5 applied)
 workingset_lock: HARD floor=384 MB ceiling=1536 MB
-frame_pacing: target dt = 8.333 ms (= 120 FPS), high-res waitable timer ENABLED (no CPU spin)
+frame_pacing: target dt = 8.333 ms (= 120 FPS), high-res waitable timer ENABLED
 low_latency: MaxFrameLatency=1 (was 3)
 gpu_thread_prio: GPU thread priority = +7 (max)
 ```
 
-If you see `ANGLE init failed` or similar, see [Troubleshooting](#troubleshooting).
+With Vulkan:
+```
+[ReviANGLE] DllMain DLL_PROCESS_ATTACH
+ReviANGLE attached — 84 boost modules, backend=vulkan
+...
+```
+
+If you see `ANGLE init failed`, `Cannot load vulkan-1.dll`, or similar backend errors, see [Troubleshooting](#troubleshooting) above.
 
 ## Uninstalling
 
-Just delete the files you added:
+### Using the Uninstaller (Recommended)
+
+ReviANGLE includes an automated uninstaller with a GUI:
+
+1. Download `ReviANGLE-Uninstall.exe` from the latest [Release](https://github.com/nazarhktwitch/ReviANGLE/releases)
+2. Run it (it will auto-detect your Geometry Dash folder)
+3. Or, place it in your Geometry Dash folder and run it from there
+4. Confirm the uninstallation
+5. The tool will remove all ReviANGLE files and restore your original `opengl32.dll` if a backup exists
+
+### Manual Uninstall
+
+If you prefer to remove files manually, delete these:
 - `opengl32.dll` (the main proxy DLL)
 - `libEGL.dll` (ANGLE core library)
 - `libGLESv2.dll` (ANGLE OpenGL ES library)
-- `d3dcompiler_47.dll` (DirectX 11 shader compiler, only needed if using d3d11 backend)
+- `d3dcompiler_47.dll` (DirectX 11 shader compiler, only if you installed the DirectX 11 build)
+- `vulkan-1.dll` (Vulkan runtime, only if you installed the Vulkan build)
 - `angle_config.ini` (configuration file)
 - `gd-angle-editor.exe` (GUI configurator, optional)
 - `angle_log.txt` (generated diagnostic log)
 - `shader_cache/` folder (if it exists, generated at runtime)
 - `plist_cache/` folder (if it exists, generated at runtime)
-- `vk_*.dll` files (if present from Vulkan backend builds)
 
 If you renamed an original `opengl32.dll.backup`, rename it back.
 
@@ -113,29 +156,31 @@ If you renamed an original `opengl32.dll.backup`, rename it back.
 
 ### GD won't start at all
 
-**Most common cause**: missing ANGLE DLL. Verify all 3 of these are next to `GeometryDash.exe`:
+**Most common cause**: missing ANGLE DLLs. Verify these are next to `GeometryDash.exe`:
 - `libEGL.dll`
 - `libGLESv2.dll`
-- `d3dcompiler_47.dll`
+- If using DirectX 11 build: `d3dcompiler_47.dll`
+- If using Vulkan build: `vulkan-1.dll`
 
-If `angle_log.txt` doesn't appear, the mod's `DllMain` never ran — usually means the DLL is corrupted or for the wrong architecture. Re-download.
+If `angle_log.txt` doesn't appear, the mod's `DllMain` never ran — usually means the DLL is corrupted or for the wrong architecture (64-bit only for GD 2.2+). Re-download the correct build.
 
 ### GD starts but black screen / no rendering
 
-Open `angle_config.ini` and try:
+Open `angle_config.ini` and check the `backend=` setting:
+
 ```ini
-backend=d3d11    # Try d3d11 first (default, most compatible). If issues occur, try:
-backend=vulkan   # Modern GPUs, excellent performance, requires recent drivers
-backend=d3d9     # Weaker / older hardware fallback
-debug=true       # Enables verbose logging — very useful for diagnosing
+backend=d3d11    # Try this first (default, most compatible)
+backend=vulkan   # Only if you have vulkan-1.dll and modern GPU
+backend=d3d9     # Fallback for very old systems
+debug=true       # Enables verbose logging
 ```
 
-Then check `angle_log.txt` for backend selection and any `glViewport` / shader errors.
+Then check `angle_log.txt` for backend selection and any errors.
 
 **Backend recommendation:**
 - **DirectX 11** (`d3d11`): Most widely compatible, especially on older laptops. Start here.
-- **Vulkan** (`vulkan`): Better performance on modern GPUs (GTX 1000+, RTX series, Radeon RX). Requires recent driver updates.
-- **DirectX 9** (`d3d9`): Legacy fallback for very old systems.
+- **Vulkan** (`vulkan`): Better performance on modern GPUs (GTX 1000+, RTX, Radeon RX). Requires `vulkan-1.dll` in the folder and recent driver updates.
+- **DirectX 9** (`d3d9`): Legacy fallback for very old systems (pre-2010).
 
 ### Lower FPS than vanilla GD
 
